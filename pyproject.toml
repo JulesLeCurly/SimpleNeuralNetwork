@@ -1,0 +1,14 @@
+[project]
+name = "SimpleNeuralNetwork"
+version = "0.1.0"
+description = "description = "A lightweight Python library for building simple neural networks with bias, hidden layers, and classic neurons, featuring fast and efficient CPU-based prediction using NumPy."
+authors = [
+    { name="JulesLeCurly", email="ton.email@example.com" }
+]
+license = {text = "MIT"}
+readme = "README.md"
+requires-python = ">=3.7"
+
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
