@@ -6,6 +6,10 @@ X = np.array([[3, 1.5], [2, 1], [4, 1.5], [3, 1],
               [3.5, 0.5], [2, 0.5], [5.5, 1], [1, 1]], dtype=float)
 Y = np.array([[1], [0], [1], [0], [1], [0], [1], [0]], dtype=float)
 
+# Normalize the input
+X_max = np.max(X, axis=0)
+X /= X_max
+
 #Standardization (not obligate) of the data if they are not a float between 0 and 1
 X = SNN.standardization.min_max_scaling(X)
 
@@ -19,7 +23,7 @@ model = SNN.model(
 )
 
 # Train the model
-model.train(X, Y, epochs=100, learning_rate="Auto", shuffle=True, verbose=True)
+model.train(X, Y, epochs=100, learning_rate=0.001, shuffle=True, verbose=True)
 
 # Save the model
 model.save("model_save_test")
@@ -28,7 +32,7 @@ model.save("model_save_test")
 model_loaded = SNN.load("model_save_test")
 
 # Make prediction
-a = model_loaded.predict(np.array([[4, 1.5]]))
+a = model_loaded.predict(np.array([[4, 1.5]]) / X_max)
 print(f"    ~~Prediction of the model~~    ")
 print(a)
 

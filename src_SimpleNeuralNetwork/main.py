@@ -61,6 +61,8 @@ SimpleNeuralNetwork.layers.Dense(1, activation="sigmoid"),
             self.parametres['W' + str(c)] = np.random.randn(NeuralNetwork_structure[c].units, NeuralNetwork_structure[c - 1].units)
             self.parametres['b' + str(c)] = np.random.randn(NeuralNetwork_structure[c].units, 1)
         
+        print(self.parametres)
+
         # Update C to represent the number of layers with parameters (excluding input layer)
         self.C = len(self.parametres) // 2
 
@@ -133,24 +135,17 @@ SimpleNeuralNetwork.layers.Dense(1, activation="sigmoid"),
         input_data
     ):
         # Check that input_data is a list
-        if not isinstance(input_data, list):
-            raise TypeError("The function's input data must be a list.")
+        if not isinstance(input_data, np.ndarray):
+            raise TypeError("The function's input data must be a numpy array.")
 
         # Check that the length of input_data matches the number of input neurons
-        if len(input_data) != self.dimensions[0]:
-            raise ValueError("The input data list must contain as many elements as the number of input neurons.")
-
-        # Check that normalization parameters are defined
-        if self.max_train is None or self.min_train is None:
-            raise ValueError("Normalization data such as maximum and minimum are not defined. Please run a 'train' function with training data or use 'set_normalization(MAX, MIN)'.")
+        if len(input_data) != self.NeuralNetwork_structure[0].units:
+            raise ValueError("The input data numpy array must contain as many elements as the number of input neurons.")
 
         # Convert input data to numpy array
         X = np.array(input_data, dtype=float)
         X = X.T
         X = X.reshape(X.shape[0], -1)
-        
-        # Normalize the input using min-max scaling
-        X = self.min_max_scaling(X)
 
         # Get prediction from the model
         prediction = self.BRUTE_predict(X).flatten()
@@ -402,16 +397,14 @@ SimpleNeuralNetwork.layers.Dense(1, activation="sigmoid"),
         # Check if show is a boolean
         if not isinstance(verbose, bool):
             raise ValueError("The 'show' parameter should be a boolean value.")
-        
-
 
         # Check that all output elements are lists
-        if any(not isinstance(val, list) for val in Y):
-            raise ValueError("The output list must only contain lists.")
+        if any(not isinstance(val, np.ndarray) for val in Y):
+            raise ValueError("The output numpy array must only contain array.")
 
         # Check that all input elements are lists
-        if any(not isinstance(val, list) for val in X):
-            raise ValueError("The input list must only contain lists.")
+        if any(not isinstance(val, np.ndarray) for val in X):
+            raise ValueError("The input numpy array must only contain array.")
         
         # Convert input and output lists to numpy arrays
         Y = np.array(Y, dtype=float)
@@ -419,7 +412,7 @@ SimpleNeuralNetwork.layers.Dense(1, activation="sigmoid"),
 
         # Validate output dimensions
         for i in range(0, len(Y)):
-            if len(Y[i]) != self.NeuralNetwork_structure[self.nb_layers].units:
+            if len(Y[i]) != self.NeuralNetwork_structure[self.nb_layers - 1].units:
                 raise ValueError("Some elements in the output list are invalid. They must match the number of output neurons. "
                                 "Problem at index: " + str(i) + 
                                 " because: " + str(self.NeuralNetwork_structure[self.nb_layers].units) + 
@@ -427,12 +420,13 @@ SimpleNeuralNetwork.layers.Dense(1, activation="sigmoid"),
 
         # Validate input dimensions
         for i in range(0, len(X)):
-            if len(X) != self.NeuralNetwork_structure[0].units:
+            if len(X[i]) != self.NeuralNetwork_structure[0].units:
                 raise ValueError("Some elements in the input list are invalid. They must match the number of input neurons. "
                                 "Problem at index: " + str(i) + 
                                 " because: " + str(self.NeuralNetwork_structure[0].units) + 
                                 " != " + str(len(X[i])))
 
+        # Transpose Y
         Y = np.transpose(Y)
         X = X.T
         X = X.reshape(X.shape[0], -1)
@@ -481,6 +475,23 @@ SimpleNeuralNetwork.layers.Dense(1, activation="sigmoid"),
         training_history[i, 0] = log_loss(y.flatten(), Af.flatten())
 
         # Compute accuracy
-        y_pred = self.predict(X)
+        y_pred = self.BRUTE_predict(X)
         training_history[i, 1] = accuracy_score(y.flatten(), np.round(y_pred).flatten())
         return training_history
+    
+    def save(
+        self,
+        path
+    ):
+        if path[-4:] != ".npz":
+            path += ".npz"
+        np.savez(path, **self.parametres)
+    
+    def load(
+        self,
+        path
+    ):
+        if path[-4:] != ".npz":
+            path += ".npz"
+        data = np.load("model_parameters.npz")
+        self.parametres = {key: data[key] for key in data.files}
