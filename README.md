@@ -1,5 +1,7 @@
 # SimpleNeuralNetwork
 
+# Warning : Not fonctionnale project yet. (sorry)
+
 A lightweight Python library for building simple neural networks with bias, hidden layers, and classic neurons, featuring fast and efficient CPU-based prediction using NumPy.
 
 ![License](https://img.shields.io/badge/license-MIT-green)
