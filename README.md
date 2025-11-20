@@ -9,7 +9,6 @@ A lightweight Python library for building simple neural networks with bias, hidd
 ## Table of Contents
 - [Installation](#installation)
 - [Usage](#usage)
-- [Tests](#tests)
 - [Contributing](#contributing)
 - [License](#license)
 - [Authors](#authors)
@@ -54,20 +53,6 @@ model.train(X, Y, epochs=400, learning_rate=1, shuffle=True, verbose=True)
 # Make prediction
 pred = model_loaded.predict(np.array([[4, 1.5]]) / X_max)
 print(f"Prediction of the model : {pred}")
-```
-
-## Tests
-
-To run the tests for the SimpleNeuralNetwork library, make sure you have `pytest` installed:
-
-```bash
-pip install pytest
-```
-
-Then, run the tests with:
-
-```bash
-pytest
 ```
 
 ## Contributing
