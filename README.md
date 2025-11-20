@@ -27,21 +27,33 @@ pip install https://github.com/JulesLeCurly/SimpleNeuralNetwork.git
 Here is a simple example of how to use the library to create and train a basic neural network:
 
 ```python
-from simple_neural_network import SimpleNeuralNetwork
+import SimpleNeuralNetwork as SNN
+import numpy as np
 
-# Example: creating a neural network with 1 input layer, 1 hidden layer, and 1 output layer
-nn = SimpleNeuralNetwork(input_size=2, hidden_size=3, output_size=1)
+# Define input (X) and output (y) data
+X = np.array([[3, 1.5], [2, 1], [4, 1.5], [3, 1], 
+              [3.5, 0.5], [2, 0.5], [5.5, 1], [1, 1]], dtype=np.float16)
+Y = np.array([[1], [0], [1], [0], [1], [0], [1], [0]], dtype=np.float16)
 
-# Training data (X) and labels (y)
-X = np.array([[0, 0], [0, 1], [1, 0], [1, 1]])  # Example inputs (X)
-y = np.array([[0], [1], [1], [0]])  # Example outputs (y)
+# Normalize the input
+X_max = np.max(X, axis=0)
+X /= X_max
 
-# Train the neural network
-nn.train(X, y, epochs=1000, learning_rate=0.1)
+# Build the model
+model = SNN.model(
+    [
+        SNN.layers.InputLayer(2),
+        SNN.layers.Dense(3, activation="sigmoid"),
+        SNN.layers.Dense(1, activation="sigmoid"),
+    ]
+)
 
-# Make predictions
-predictions = nn.predict(X)
-print(predictions)
+# Train the model
+model.train(X, Y, epochs=400, learning_rate=1, shuffle=True, verbose=True)
+
+# Make prediction
+pred = model_loaded.predict(np.array([[4, 1.5]]) / X_max)
+print(f"Prediction of the model : {pred}")
 ```
 
 ## Tests
@@ -73,5 +85,5 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Authors
 
-- **Ton Nom** - *Initial work* - [JulesLeCurly](https://github.com/JulesLeCurly)
+- **Jules* - *Initial work* - [JulesLeCurly](https://github.com/JulesLeCurly)
 ```
