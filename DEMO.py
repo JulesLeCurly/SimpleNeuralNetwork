@@ -6,21 +6,6 @@ X = np.array([[3, 1.5], [2, 1], [4, 1.5], [3, 1],
               [3.5, 0.5], [2, 0.5], [5.5, 1], [1, 1]], dtype=np.float16)
 Y = np.array([[1], [0], [1], [0], [1], [0], [1], [0]], dtype=np.float16)
 
-# Exemple : dataset XOR
-X = np.array([
-    [0, 0],
-    [0, 1],
-    [1, 0],
-    [1, 1]
-], dtype=float)
-
-Y = np.array([
-    [0],
-    [1],
-    [1],
-    [0]
-], dtype=float)
-
 # Normalize the input
 X_max = np.max(X, axis=0)
 X /= X_max
@@ -35,7 +20,7 @@ model = SNN.model(
 )
 
 # Train the model
-model.train(X, Y, epochs=100, learning_rate=0.001, shuffle=True, verbose=True)
+model.train(X, Y, epochs=400, learning_rate=1, shuffle=True, verbose=True)
 
 # Save the model
 #SNN.save(model, "model_save_test") # Not working yet
@@ -45,9 +30,9 @@ model.train(X, Y, epochs=100, learning_rate=0.001, shuffle=True, verbose=True)
 model_loaded = model # Because of not Save and Load available
 
 # Make prediction
-a = model_loaded.predict(np.array([[1, 0]]) / X_max)
+pred = model_loaded.predict(np.array([[4, 1.5]]) / X_max)
 print(f"    ~~Prediction of the model~~    ")
-print(a)
+print(pred)
 
 # Info
 #model_loaded.summary() # Not working yet
