@@ -101,6 +101,6 @@ Exceptions to this rule are documented.
 """
 
 from .src_SimpleNeuralNetwork.main import model
-from .src_SimpleNeuralNetwork.Fonction import layers
-from .src_SimpleNeuralNetwork.Fonction import standardization
-
+from .src_SimpleNeuralNetwork.Function import layers
+from .src_SimpleNeuralNetwork.Function import standardization
+from .src_SimpleNeuralNetwork.Function.io import save, load
