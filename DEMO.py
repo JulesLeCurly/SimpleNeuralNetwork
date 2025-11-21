@@ -1,5 +1,6 @@
 import SimpleNeuralNetwork as SNN
 import numpy as np
+import matplotlib.pyplot as plt
 
 # Define input (X) and output (y) data
 X = np.array([[3, 1.5], [2, 1], [4, 1.5], [3, 1], 
@@ -16,11 +17,20 @@ model = SNN.model(
         SNN.layers.InputLayer(2),
         SNN.layers.Dense(3, activation="sigmoid"),
         SNN.layers.Dense(1, activation="sigmoid"),
-    ]
+    ],
+    seed=42
 )
 
 # Train the model
-model.train(X, Y, epochs=400, learning_rate=1, shuffle=True, verbose=True)
+history = model.train(X, Y, epochs=400, learning_rate="Auto", shuffle=True, verbose=True)
+history = history.T
+print(history[0][400 - 1])
+
+# Plot the loss
+plt.plot(history[0])
+plt.xlabel("Epoch")
+plt.ylabel("Loss")
+plt.show()
 
 # Save the model
 #SNN.save(model, "model_save_test") # Not working yet

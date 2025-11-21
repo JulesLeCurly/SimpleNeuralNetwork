@@ -74,6 +74,10 @@ SimpleNeuralNetwork.layers.Dense(1, activation="sigmoid"),
         # Update C to represent the number of layers with parameters (excluding input layer)
         self.C = len(self.parametres) // 2
 
+        # Other attributes
+        self.learning_rate = None
+        self.Auto_learning_rate = None
+
     def forward_propagation(
         self,
         X
@@ -172,12 +176,19 @@ SimpleNeuralNetwork.layers.Dense(1, activation="sigmoid"),
         shuffle=True,
         verbose=False
     ):
+        # Store the learning rate
+        self.learning_rate = learning_rate
+        if self.learning_rate == "Auto":
+            self.Auto_learning_rate = True
+        else:
+            self.Auto_learning_rate = False
+
         # Check if n_iter is a positive integer
         if not isinstance(epochs, int) or epochs <= 0:
             raise ValueError("The number of iterations should be a positive integer.")
 
         # Check if learning_rate is a positive number
-        if (not isinstance(learning_rate, (int, float)) or learning_rate <= 0) and learning_rate != "Auto":
+        if (not isinstance(self.learning_rate, (int, float)) or self.learning_rate <= 0) and self.learning_rate != "Auto":
             raise ValueError("The learning_rate should be a positive number or 'Auto'.")
 
         # Check if show is a boolean
@@ -217,13 +228,17 @@ SimpleNeuralNetwork.layers.Dense(1, activation="sigmoid"),
         # Array to store training loss and accuracy for each iteration
         training_history = np.zeros((int(epochs), 2))
 
+        # Set learning rate
+        if self.Auto_learning_rate:
+            self.Set_learning_rate(-1, training_history)
+        
         # Gradient descent training loop
         if verbose:
             for i in tqdm(range(epochs)):
-                training_history = self.learning_process(i, X, Y, learning_rate, training_history)
+                training_history = self.learning_process(i, X, Y, training_history)
         else:
             for i in range(epochs):
-                training_history = self.learning_process(i, X, Y, learning_rate, training_history)
+                training_history = self.learning_process(i, X, Y, training_history)
 
         return training_history 
     
@@ -232,7 +247,6 @@ SimpleNeuralNetwork.layers.Dense(1, activation="sigmoid"),
         i,
         X,
         y,
-        learning_rate,
         training_history
     ):
         # Forward propagation
@@ -240,7 +254,7 @@ SimpleNeuralNetwork.layers.Dense(1, activation="sigmoid"),
         # Backward propagation
         self.back_propagation(y)
         # Update weights and biases
-        self.update(learning_rate)
+        self.update(self.learning_rate)
         Af = self.activations['A' + str(self.C)]
 
         # Compute log loss
@@ -249,4 +263,16 @@ SimpleNeuralNetwork.layers.Dense(1, activation="sigmoid"),
         # Compute accuracy
         y_pred = self.BRUTE_predict(X)
         training_history[i, 1] = accuracy_score(y.flatten(), np.round(y_pred).flatten())
+
+        # Set learning rate
+        if self.Auto_learning_rate:
+            self.Set_learning_rate(i, training_history)
+            
         return training_history
+    
+    def Set_learning_rate(self, iteration, loss_history):
+        if iteration == -1:
+            self.learning_rate = 2
+        else:
+            if loss_history[iteration, 0] > loss_history[iteration - 1, 0]:
+                self.learning_rate *= 0.9

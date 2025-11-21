@@ -48,7 +48,7 @@ model = SNN.model(
 )
 
 # Train the model
-model.train(X, Y, epochs=400, learning_rate=1, shuffle=True, verbose=True)
+history = model.train(X, Y, epochs=400, learning_rate=1, shuffle=True, verbose=True)
 
 # Make prediction
 pred = model_loaded.predict(np.array([[4, 1.5]]) / X_max)
