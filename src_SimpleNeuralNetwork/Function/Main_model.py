@@ -171,6 +171,8 @@ SimpleNeuralNetwork.layers.Dense(1, activation="sigmoid"),
         self,
         X=None,
         Y=None,
+        X_test=None,
+        Y_test=None,
         epochs=1,
         learning_rate=0.1,
         shuffle=True,
@@ -226,7 +228,16 @@ SimpleNeuralNetwork.layers.Dense(1, activation="sigmoid"),
         X = X.reshape(X.shape[0], -1)
 
         # Array to store training loss and accuracy for each iteration
-        training_history = np.zeros((int(epochs), 2))
+        training_history = {
+            'loss': np.zeros((epochs)),
+            'accuracy': np.zeros((epochs)),
+            'test_loss': np.zeros((epochs)),
+            'test_accuracy': np.zeros((epochs))
+        }
+
+        if X_test is None and Y_test is None:
+            training_history.pop('test_loss')
+            training_history.pop('test_accuracy')
 
         # Set learning rate
         if self.Auto_learning_rate:
@@ -235,10 +246,10 @@ SimpleNeuralNetwork.layers.Dense(1, activation="sigmoid"),
         # Gradient descent training loop
         if verbose:
             for i in tqdm(range(epochs)):
-                training_history = self.learning_process(i, X, Y, training_history)
+                training_history = self.learning_process(i, X, Y, X_test, Y_test, training_history)
         else:
             for i in range(epochs):
-                training_history = self.learning_process(i, X, Y, training_history)
+                training_history = self.learning_process(i, X, Y, X_test, Y_test, training_history)
 
         return training_history 
     
@@ -247,6 +258,8 @@ SimpleNeuralNetwork.layers.Dense(1, activation="sigmoid"),
         i,
         X,
         y,
+        X_test,
+        Y_test,
         training_history
     ):
         # Forward propagation
@@ -258,11 +271,15 @@ SimpleNeuralNetwork.layers.Dense(1, activation="sigmoid"),
         Af = self.activations['A' + str(self.C)]
 
         # Compute log loss
-        training_history[i, 0] = log_loss(y.flatten(), Af.flatten())
+        training_history["loss"][i] = log_loss(y.flatten(), Af.flatten())
+        if not X_test is None and not Y_test is None:
+            training_history["test_loss"][i] = log_loss(Y_test.flatten(), self.predict(X_test).flatten())
 
         # Compute accuracy
         y_pred = self.BRUTE_predict(X)
-        training_history[i, 1] = accuracy_score(y.flatten(), np.round(y_pred).flatten())
+        training_history["accuracy"][i] = accuracy_score(y.flatten(), np.round(y_pred).flatten())
+        if not X_test is None and not Y_test is None:
+            training_history["test_accuracy"][i] = accuracy_score(Y_test.flatten(), np.round(self.predict(X_test)).flatten())
 
         # Set learning rate
         if self.Auto_learning_rate:
@@ -274,5 +291,5 @@ SimpleNeuralNetwork.layers.Dense(1, activation="sigmoid"),
         if iteration == -1:
             self.learning_rate = 2
         else:
-            if loss_history[iteration, 0] > loss_history[iteration - 1, 0]:
+            if loss_history["loss"][iteration] > loss_history["loss"][iteration - 1]:
                 self.learning_rate *= 0.9
